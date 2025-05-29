@@ -30,11 +30,15 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Convert repository name to lowercase
+      id: lowercase
+      run: echo "repo=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
+
     - name: Extract metadata
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/matetrack-pwa
+        images: ${{ env.REGISTRY }}/${{ steps.lowercase.outputs.repo }}
         tags: |
           type=ref,event=branch
           type=ref,event=pr
@@ -65,7 +69,7 @@ jobs:
         file: ./Dockerfile.chainguard
         platforms: linux/amd64,linux/arm64
         push: true
-        tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/matetrack-pwa:chainguard
+        tags: ${{ env.REGISTRY }}/${{ steps.lowercase.outputs.repo }}:chainguard
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
