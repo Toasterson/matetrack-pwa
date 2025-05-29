@@ -103,6 +103,13 @@ A Progressive Web App (PWA) designed for tracking expenses at events. Perfect fo
 
 ## Deployment
 
+### Quick Local Deployment
+
+```bash
+# Using the automated script
+./build-and-deploy.sh
+```
+
 ### Docker Deployment
 
 ```bash
@@ -115,10 +122,59 @@ docker run -d -p 8080:8080 --name matetrack matetrack:latest
 # Access at http://localhost:8080
 ```
 
-### Kubernetes Deployment
+### Helm Chart Deployment (Recommended)
+
+Deploy using the included Helm chart with Chainguard-based container:
 
 ```bash
-# Deploy to Kubernetes
+# Install from OCI registry
+helm install matetrack oci://ghcr.io/toasterson/matetrack-pwa/helm/matetrack
+
+# Or with custom values
+helm install matetrack oci://ghcr.io/toasterson/matetrack-pwa/helm/matetrack \
+  --set ingress.hosts[0].host=matetrack.example.com \
+  --set ingress.tls[0].hosts[0]=matetrack.example.com
+```
+
+The Helm chart includes:
+- Chainguard distroless nginx container for security
+- Ingress with TLS termination
+- Horizontal Pod Autoscaling support
+- Security contexts and resource limits
+- Health checks and monitoring
+
+See `helm/matetrack/README.md` for detailed configuration options.
+
+### Flux CD GitOps Deployment
+
+For automated GitOps deployment using Flux CD:
+
+```bash
+# Apply Flux configuration
+kubectl apply -f flux/
+
+# Or using Flux CLI
+flux create source git matetrack-pwa \
+  --url=https://github.com/Toasterson/matetrack-pwa \
+  --branch=main
+
+flux create kustomization matetrack-pwa \
+  --source=matetrack-pwa \
+  --path="./flux" \
+  --prune=true
+```
+
+The Flux configuration deploys to:
+- **Namespace**: `projects`
+- **Domain**: `matetrack.wegmueller.it`
+- **Auto-updates**: Tracks chart versions `>=0.1.0`
+
+See `flux/README.md` for detailed GitOps setup instructions.
+
+### Legacy Kubernetes Deployment
+
+```bash
+# Deploy to Kubernetes (legacy method)
 kubectl apply -f kubernetes.yaml
 
 # Check status
@@ -129,24 +185,43 @@ kubectl get services
 kubectl get service matetrack-service
 ```
 
+### CI/CD Pipeline
+
+The project includes automated GitHub Actions workflow that:
+
+1. **Builds container images**: Standard and Chainguard variants
+2. **Publishes to GHCR**: `ghcr.io/toasterson/matetrack-pwa`
+3. **Packages Helm chart**: Automatically versioned
+4. **Publishes Helm chart**: To OCI registry at `/helm` suffix
+5. **Multi-architecture**: Supports AMD64 and ARM64
+
+Triggered on:
+- Push to `main` or `develop` branches
+- Git tags (for releases)
+- Pull requests (build only)
+
 ### Manual Deployment Steps
 
 1. **Build the image:**
    ```bash
-   docker build -t matetrack:latest .
+   docker build -f Dockerfile.chainguard -t matetrack:chainguard .
    ```
 
 2. **Tag for your registry:**
    ```bash
-   docker tag matetrack:latest ghcr.io/toasterson/matetrack:latest
-   docker push ghcr.io/toasterson/matetrack:latest
+   docker tag matetrack:chainguard ghcr.io/toasterson/matetrack-pwa:chainguard
+   docker push ghcr.io/toasterson/matetrack-pwa:chainguard
    ```
 
-3. **Update kubernetes.yaml** with your image name
-
-4. **Deploy:**
+3. **Package and publish Helm chart:**
    ```bash
-   kubectl apply -f kubernetes.yaml
+   helm package helm/matetrack
+   helm push matetrack-*.tgz oci://ghcr.io/toasterson/matetrack-pwa/helm
+   ```
+
+4. **Deploy using Helm:**
+   ```bash
+   helm install matetrack oci://ghcr.io/toasterson/matetrack-pwa/helm/matetrack
    ```
 
 ## Configuration
@@ -168,10 +243,18 @@ The app runs entirely in the browser, so no server-side configuration is needed.
 
 ## Security Features
 
+### Application Security
 - **CSP Headers**: Content Security Policy implemented
 - **HTTPS Ready**: Secure headers configured
 - **No External Dependencies**: All code is self-contained
-- **Chainguard Base**: Minimal, secure container image
+- **Privacy First**: All data stays local, no server tracking
+
+### Container Security (Chainguard Base)
+- **Distroless Image**: Minimal attack surface with Chainguard nginx
+- **Non-root User**: Runs as user ID 65532 (nonroot)
+- **Read-only Filesystem**: Container filesystem is read-only
+- **Dropped Capabilities**: All Linux capabilities dropped
+- **Security Contexts**: Pod and container security policies enforced
 
 ## PWA Compliance
 
@@ -201,8 +284,24 @@ matetrack/
 │   ├── manifest.json       # PWA manifest
 │   ├── favicon.svg         # App icon
 │   └── icons/              # PWA icons (placeholder)
-├── Dockerfile              # Container configuration
-├── kubernetes.yaml         # K8s deployment manifests
+├── helm/
+│   └── matetrack/          # Helm chart for Kubernetes deployment
+│       ├── Chart.yaml      # Chart metadata
+│       ├── values.yaml     # Default configuration values
+│       ├── templates/      # Kubernetes manifests templates
+│       └── README.md       # Helm chart documentation
+├── flux/                   # Flux CD GitOps configuration
+│   ├── namespace.yaml      # Kubernetes namespace
+│   ├── helmrepository.yaml # Helm OCI repository source
+│   ├── helmrelease.yaml    # Helm release definition
+│   ├── kustomization.yaml  # Kustomization configuration
+│   └── README.md           # Flux deployment guide
+├── .github/
+│   └── workflows/
+│       └── docker-build.yml # CI/CD pipeline for containers and Helm
+├── Dockerfile              # Standard container configuration
+├── Dockerfile.chainguard   # Chainguard-based container (security hardened)
+├── kubernetes.yaml         # Legacy K8s deployment manifests
 ├── build-and-deploy.sh     # Build and deployment script
 └── README.md               # This file
 ```

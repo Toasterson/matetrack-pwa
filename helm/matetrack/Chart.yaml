@@ -1,0 +1,17 @@
+apiVersion: v2
+name: matetrack
+description: A Helm chart for MateTrack PWA - Progressive Web App for tracking expenses at events
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - pwa
+  - progressive-web-app
+  - expense-tracker
+  - nginx
+home: https://github.com/Toasterson/matetrack-pwa
+sources:
+  - https://github.com/Toasterson/matetrack-pwa
+maintainers:
+  - name: MateTrack Team
+    url: https://github.com/Toasterson/matetrack-pwa
