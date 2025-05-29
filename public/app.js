@@ -4,6 +4,7 @@ class MateTrackApp {
         this.expenses = JSON.parse(localStorage.getItem('matetrack_expenses') || '[]');
         this.drinks = JSON.parse(localStorage.getItem('matetrack_drinks') || '[]');
         this.quickGrabs = JSON.parse(localStorage.getItem('matetrack_grabs') || '[]');
+        this.registerPayments = JSON.parse(localStorage.getItem('matetrack_register') || '[]');
         
         this.init();
     }
@@ -15,6 +16,8 @@ class MateTrackApp {
         this.renderDrinks();
         this.renderQuickGrabButtons();
         this.renderQuickGrabs();
+        this.renderRegisterPayments();
+        this.updateRegisterSummary();
     }
 
     setupEventListeners() {
@@ -26,6 +29,7 @@ class MateTrackApp {
         // Form submissions
         document.getElementById('expenseForm').addEventListener('submit', (e) => this.addExpense(e));
         document.getElementById('drinkForm').addEventListener('submit', (e) => this.addDrink(e));
+        document.getElementById('registerForm').addEventListener('submit', (e) => this.addRegisterPayment(e));
         
         // Clear data button
         document.getElementById('clearDataBtn').addEventListener('click', () => this.clearAllData());
@@ -66,6 +70,7 @@ class MateTrackApp {
         this.expenses.unshift(expense);
         this.saveExpenses();
         this.updateTotalAmount();
+        this.updateRegisterSummary();
         this.renderExpenses();
         this.resetForm('expenseForm');
         this.showFeedback(`Added expense: $${amount.toFixed(2)}`, 'success');
@@ -131,15 +136,57 @@ class MateTrackApp {
         this.saveQuickGrabs();
         this.saveExpenses();
         this.updateTotalAmount();
+        this.updateRegisterSummary();
         this.renderExpenses();
         this.renderQuickGrabs();
         
         this.showFeedback(`Grabbed ${drink.name} - $${drink.price.toFixed(2)}`, 'success');
     }
 
+    addRegisterPayment(e) {
+        e.preventDefault();
+        
+        const amount = parseFloat(document.getElementById('registerAmount').value);
+        const note = document.getElementById('registerNote').value.trim();
+        
+        if (!amount) {
+            this.showFeedback('Please enter an amount', 'error');
+            return;
+        }
+
+        const payment = {
+            id: Date.now(),
+            amount: amount,
+            note: note || 'Payment to event register',
+            timestamp: new Date().toISOString(),
+            date: new Date().toLocaleDateString(),
+            time: new Date().toLocaleTimeString()
+        };
+
+        this.registerPayments.unshift(payment);
+        this.saveRegisterPayments();
+        this.updateTotalAmount();
+        this.updateRegisterSummary();
+        this.renderRegisterPayments();
+        this.resetForm('registerForm');
+        this.showFeedback(`Added register payment: $${amount.toFixed(2)}`, 'success');
+    }
+
     updateTotalAmount() {
-        const total = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
-        document.getElementById('totalAmount').textContent = total.toFixed(2);
+        const expenseTotal = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        const registerTotal = this.registerPayments.reduce((sum, payment) => sum + payment.amount, 0);
+        const grandTotal = expenseTotal + registerTotal;
+        document.getElementById('totalAmount').textContent = grandTotal.toFixed(2);
+    }
+
+    updateRegisterSummary() {
+        const registerTotal = this.registerPayments.reduce((sum, payment) => sum + payment.amount, 0);
+        const expenseTotal = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        const grandTotal = expenseTotal + registerTotal;
+        
+        document.getElementById('totalRegisterAmount').textContent = registerTotal.toFixed(2);
+        document.getElementById('personalExpensesAmount').textContent = expenseTotal.toFixed(2);
+        document.getElementById('grandTotalAmount').textContent = grandTotal.toFixed(2);
     }
 
     renderExpenses() {
@@ -225,6 +272,27 @@ class MateTrackApp {
         `).join('');
     }
 
+    renderRegisterPayments() {
+        const container = document.getElementById('registerPaymentsList');
+        
+        if (this.registerPayments.length === 0) {
+            container.innerHTML = '<p class="empty-state">No register payments yet. Add your first payment above!</p>';
+            return;
+        }
+
+        container.innerHTML = this.registerPayments.map(payment => `
+            <div class="register-item">
+                <div class="register-header">
+                    <span class="register-note">${payment.note}</span>
+                    <span class="register-amount">$${payment.amount.toFixed(2)}</span>
+                </div>
+                <div>
+                    <span class="register-time">${payment.date} at ${payment.time}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
     showFeedback(message, type) {
         const existingFeedback = document.querySelector('.success-feedback, .error-feedback');
         if (existingFeedback) {
@@ -252,16 +320,20 @@ class MateTrackApp {
             this.expenses = [];
             this.drinks = [];
             this.quickGrabs = [];
+            this.registerPayments = [];
             
             localStorage.removeItem('matetrack_expenses');
             localStorage.removeItem('matetrack_drinks');
             localStorage.removeItem('matetrack_grabs');
+            localStorage.removeItem('matetrack_register');
             
             this.updateTotalAmount();
+            this.updateRegisterSummary();
             this.renderExpenses();
             this.renderDrinks();
             this.renderQuickGrabButtons();
             this.renderQuickGrabs();
+            this.renderRegisterPayments();
             
             this.showFeedback('All data cleared successfully', 'success');
         }
@@ -277,6 +349,10 @@ class MateTrackApp {
 
     saveQuickGrabs() {
         localStorage.setItem('matetrack_grabs', JSON.stringify(this.quickGrabs));
+    }
+
+    saveRegisterPayments() {
+        localStorage.setItem('matetrack_register', JSON.stringify(this.registerPayments));
     }
 }
 

@@ -25,6 +25,7 @@
 
         <nav class="nav-tabs">
             <button class="nav-tab active" data-tab="expenses">💰 Expenses</button>
+            <button class="nav-tab" data-tab="register">💳 Register</button>
             <button class="nav-tab" data-tab="drinks">🍺 Drinks</button>
             <button class="nav-tab" data-tab="quick">⚡ Quick Grab</button>
         </nav>
@@ -61,6 +62,49 @@
                 <h2>Recent Expenses</h2>
                 <div id="expensesList" class="expenses-list">
                     <p class="empty-state">No expenses yet. Add your first expense above!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Tab -->
+        <div id="register" class="tab-content">
+            <div class="card">
+                <h2>Pay to Event Register</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerAmount">Amount ($)</label>
+                        <input type="number" id="registerAmount" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerNote">Note (optional)</label>
+                        <input type="text" id="registerNote" placeholder="e.g., For drinks fund, Group dinner">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Payment</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Register Summary</h2>
+                <div class="register-summary">
+                    <div class="summary-item">
+                        <span class="summary-label">Total Paid to Register:</span>
+                        <span class="summary-amount">$<span id="totalRegisterAmount">0.00</span></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Personal Expenses:</span>
+                        <span class="summary-amount">$<span id="personalExpensesAmount">0.00</span></span>
+                    </div>
+                    <div class="summary-item total-row">
+                        <span class="summary-label">Total Spent:</span>
+                        <span class="summary-amount">$<span id="grandTotalAmount">0.00</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Register Payments</h2>
+                <div id="registerPaymentsList" class="register-list">
+                    <p class="empty-state">No register payments yet. Add your first payment above!</p>
                 </div>
             </div>
         </div>
