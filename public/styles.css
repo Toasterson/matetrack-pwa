@@ -37,6 +37,13 @@ body {
     margin-bottom: 0.5rem;
 }
 
+.header-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+}
+
 .total-spent {
     font-size: 1.5rem;
     font-weight: 600;
@@ -45,6 +52,43 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+}
+
+.credit-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.credit-label {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.credit-amount {
+    font-weight: 700;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.credit-positive {
+    color: #059669;
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.credit-negative {
+    color: #dc2626;
+    background: rgba(220, 38, 38, 0.1);
+    border-color: rgba(220, 38, 38, 0.3);
+}
+
+.credit-zero {
+    color: #6b7280;
 }
 
 .nav-tabs {
@@ -307,6 +351,14 @@ body {
         font-size: 1.3rem;
     }
     
+    .credit-display {
+        font-size: 1rem;
+    }
+    
+    .header-summary {
+        gap: 0.25rem;
+    }
+    
     .nav-tab {
         font-size: 0.7rem;
         padding: 0.6rem 0.2rem;
@@ -355,12 +407,45 @@ body {
     border-bottom: none;
 }
 
+.summary-item.balance-row {
+    border-top: 1px solid rgba(34, 197, 94, 0.3);
+    border-bottom: 1px solid rgba(34, 197, 94, 0.3);
+    margin: 0.5rem 0;
+    padding: 0.75rem 0;
+    font-weight: 700;
+    font-size: 1.1rem;
+    background: rgba(34, 197, 94, 0.05);
+}
+
 .summary-item.total-row {
     border-top: 2px solid rgba(34, 197, 94, 0.3);
     margin-top: 0.5rem;
     padding-top: 1rem;
     font-weight: 700;
     font-size: 1.1rem;
+}
+
+.balance-positive {
+    color: #059669 !important;
+}
+
+.balance-negative {
+    color: #dc2626 !important;
+}
+
+.balance-zero {
+    color: #6b7280 !important;
+}
+
+.total-row .summary-amount {
+    color: #2d3748;
+    font-size: 1.3rem;
+}
+
+<old_text>
+.total-row .summary-amount {
+    color: #2d3748;
+    font-size: 1.3rem;
 }
 
 .summary-label {

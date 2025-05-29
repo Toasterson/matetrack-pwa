@@ -11,13 +11,12 @@ class MateTrackApp {
 
     init() {
         this.setupEventListeners();
-        this.updateTotalAmount();
+        this.updateAllDisplays();
         this.renderExpenses();
         this.renderDrinks();
         this.renderQuickGrabButtons();
         this.renderQuickGrabs();
         this.renderRegisterPayments();
-        this.updateRegisterSummary();
     }
 
     setupEventListeners() {
@@ -69,8 +68,7 @@ class MateTrackApp {
 
         this.expenses.unshift(expense);
         this.saveExpenses();
-        this.updateTotalAmount();
-        this.updateRegisterSummary();
+        this.updateAllDisplays();
         this.renderExpenses();
         this.resetForm('expenseForm');
         this.showFeedback(`Added expense: $${amount.toFixed(2)}`, 'success');
@@ -135,8 +133,7 @@ class MateTrackApp {
         
         this.saveQuickGrabs();
         this.saveExpenses();
-        this.updateTotalAmount();
-        this.updateRegisterSummary();
+        this.updateAllDisplays();
         this.renderExpenses();
         this.renderQuickGrabs();
         
@@ -165,28 +162,57 @@ class MateTrackApp {
 
         this.registerPayments.unshift(payment);
         this.saveRegisterPayments();
-        this.updateTotalAmount();
-        this.updateRegisterSummary();
+        this.updateAllDisplays();
         this.renderRegisterPayments();
         this.resetForm('registerForm');
         this.showFeedback(`Added register payment: $${amount.toFixed(2)}`, 'success');
     }
 
     updateTotalAmount() {
-        const expenseTotal = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        // Calculate total out of pocket: register payments + other expenses
         const registerTotal = this.registerPayments.reduce((sum, payment) => sum + payment.amount, 0);
-        const grandTotal = expenseTotal + registerTotal;
-        document.getElementById('totalAmount').textContent = grandTotal.toFixed(2);
+        const otherExpenses = this.expenses.filter(expense => expense.category !== 'drinks')
+            .reduce((sum, expense) => sum + expense.amount, 0);
+        const totalOutOfPocket = registerTotal + otherExpenses;
+        document.getElementById('totalAmount').textContent = totalOutOfPocket.toFixed(2);
+    }
+
+    calculateRegisterBalance() {
+        const registerTotal = this.registerPayments.reduce((sum, payment) => sum + payment.amount, 0);
+        const drinksConsumed = this.expenses.filter(expense => expense.category === 'drinks')
+            .reduce((sum, expense) => sum + expense.amount, 0);
+        return registerTotal - drinksConsumed;
     }
 
     updateRegisterSummary() {
         const registerTotal = this.registerPayments.reduce((sum, payment) => sum + payment.amount, 0);
-        const expenseTotal = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
-        const grandTotal = expenseTotal + registerTotal;
+        const drinksConsumed = this.expenses.filter(expense => expense.category === 'drinks')
+            .reduce((sum, expense) => sum + expense.amount, 0);
+        const otherExpenses = this.expenses.filter(expense => expense.category !== 'drinks')
+            .reduce((sum, expense) => sum + expense.amount, 0);
+        const balance = this.calculateRegisterBalance();
+        const totalOutOfPocket = registerTotal + otherExpenses;
         
         document.getElementById('totalRegisterAmount').textContent = registerTotal.toFixed(2);
-        document.getElementById('personalExpensesAmount').textContent = expenseTotal.toFixed(2);
-        document.getElementById('grandTotalAmount').textContent = grandTotal.toFixed(2);
+        document.getElementById('drinksConsumedAmount').textContent = drinksConsumed.toFixed(2);
+        document.getElementById('otherExpensesAmount').textContent = otherExpenses.toFixed(2);
+        document.getElementById('totalOutOfPocket').textContent = totalOutOfPocket.toFixed(2);
+        
+        // Update balance display with appropriate styling
+        const balanceElement = document.getElementById('balanceAmount');
+        if (balance > 0) {
+            balanceElement.textContent = `+$${balance.toFixed(2)}`;
+            balanceElement.className = 'summary-amount balance-positive';
+        } else if (balance < 0) {
+            balanceElement.textContent = `-$${Math.abs(balance).toFixed(2)}`;
+            balanceElement.className = 'summary-amount balance-negative';
+        } else {
+            balanceElement.textContent = '$0.00';
+            balanceElement.className = 'summary-amount balance-zero';
+        }
+        
+        // Update header balance display
+        this.updateHeaderBalance(balance);
     }
 
     renderExpenses() {
@@ -327,8 +353,7 @@ class MateTrackApp {
             localStorage.removeItem('matetrack_grabs');
             localStorage.removeItem('matetrack_register');
             
-            this.updateTotalAmount();
-            this.updateRegisterSummary();
+            this.updateAllDisplays();
             this.renderExpenses();
             this.renderDrinks();
             this.renderQuickGrabButtons();
@@ -353,6 +378,26 @@ class MateTrackApp {
 
     saveRegisterPayments() {
         localStorage.setItem('matetrack_register', JSON.stringify(this.registerPayments));
+    }
+
+    updateHeaderBalance(balance) {
+        const headerBalanceElement = document.getElementById('headerBalance');
+        
+        if (balance > 0) {
+            headerBalanceElement.textContent = `+$${balance.toFixed(2)}`;
+            headerBalanceElement.className = 'credit-amount credit-positive';
+        } else if (balance < 0) {
+            headerBalanceElement.textContent = `-$${Math.abs(balance).toFixed(2)}`;
+            headerBalanceElement.className = 'credit-amount credit-negative';
+        } else {
+            headerBalanceElement.textContent = '$0.00';
+            headerBalanceElement.className = 'credit-amount credit-zero';
+        }
+    }
+
+    updateAllDisplays() {
+        this.updateTotalAmount();
+        this.updateRegisterSummary();
     }
 }
 
