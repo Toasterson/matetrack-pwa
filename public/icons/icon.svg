@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background with rounded corners -->
+  <rect width="512" height="512" rx="51.2" ry="51.2" fill="url(#bg)"/>
+  
+  <!-- Beer mug icon -->
+  <g transform="translate(128, 128) scale(1.5)">
+    <!-- Mug body -->
+    <rect x="20" y="60" width="80" height="120" rx="8" ry="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+    
+    <!-- Foam -->
+    <ellipse cx="60" cy="60" rx="40" ry="15" fill="#ffffff"/>
+    <ellipse cx="45" cy="50" rx="8" ry="6" fill="#ffffff"/>
+    <ellipse cx="75" cy="55" rx="6" ry="4" fill="#ffffff"/>
+    <ellipse cx="60" cy="45" rx="5" ry="3" fill="#ffffff"/>
+    
+    <!-- Handle -->
+    <path d="M100 90 Q115 90 115 110 Q115 130 100 130" stroke="#ffffff" stroke-width="8" fill="none"/>
+    
+    <!-- Beer color -->
+    <rect x="25" y="70" width="70" height="105" rx="3" ry="3" fill="#fbbf24" opacity="0.8"/>
+  </g>
+  
+  <!-- App name -->
+  <text x="256" y="420" font-family="Arial, sans-serif" font-size="36" font-weight="bold" text-anchor="middle" fill="#ffffff">MateTrack</text>
+  
+  <!-- Dollar sign accent -->
+  <circle cx="380" cy="160" r="25" fill="#22c55e" opacity="0.9"/>
+  <text x="380" y="170" font-family="Arial, sans-serif" font-size="28" font-weight="bold" text-anchor="middle" fill="#ffffff">$</text>
+</svg>

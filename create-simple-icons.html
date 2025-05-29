@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Icon Generator</title>
+</head>
+<body>
+    <canvas id="canvas" style="display: none;"></canvas>
+    <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h1>🍻 MateTrack Icon Generator</h1>
+        <button onclick="generateAllIcons()" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 15px 30px; border-radius: 10px; font-size: 16px; cursor: pointer;">Generate All Icons</button>
+        <div id="downloads" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        function generateIcon(size) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = size;
+            canvas.height = size;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, size, size);
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Center coordinates
+            const centerX = size / 2;
+            const centerY = size / 2;
+            
+            // Beer mug - main body
+            ctx.fillStyle = '#ffffff';
+            const mugWidth = size * 0.3;
+            const mugHeight = size * 0.4;
+            const mugX = centerX - mugWidth / 2;
+            const mugY = centerY - mugHeight / 2;
+            
+            ctx.fillRect(mugX, mugY, mugWidth, mugHeight);
+            
+            // Beer foam on top
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.ellipse(centerX, mugY, mugWidth / 2, size * 0.06, 0, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Small foam bubbles
+            ctx.beginPath();
+            ctx.arc(centerX - size * 0.08, mugY - size * 0.03, size * 0.02, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(centerX + size * 0.06, mugY - size * 0.02, size * 0.015, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Handle
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = size * 0.025;
+            ctx.beginPath();
+            const handleX = mugX + mugWidth;
+            const handleY = centerY;
+            ctx.arc(handleX + size * 0.04, handleY, size * 0.08, -Math.PI/2, Math.PI/2, false);
+            ctx.stroke();
+            
+            // Dollar sign accent
+            ctx.fillStyle = '#22c55e';
+            ctx.beginPath();
+            ctx.arc(centerX + size * 0.28, centerY - size * 0.28, size * 0.08, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `bold ${size * 0.08}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('$', centerX + size * 0.28, centerY - size * 0.28);
+            
+            // App name (for larger icons)
+            if (size >= 192) {
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `bold ${size * 0.06}px Arial`;
+                ctx.fillText('MateTrack', centerX, centerY + size * 0.35);
+            }
+            
+            return canvas.toDataURL('image/png');
+        }
+        
+        function generateAllIcons() {
+            const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+            const downloadsDiv = document.getElementById('downloads');
+            downloadsDiv.innerHTML = '<h3>Generated Icons:</h3>';
+            
+            sizes.forEach(size => {
+                const dataUri = generateIcon(size);
+                const link = document.createElement('a');
+                link.href = dataUri;
+                link.download = `icon-${size}x${size}.png`;
+                link.textContent = `📥 Download icon-${size}x${size}.png`;
+                link.style.display = 'block';
+                link.style.margin = '10px 0';
+                link.style.padding = '10px';
+                link.style.background = '#f0f0f0';
+                link.style.textDecoration = 'none';
+                link.style.color = '#333';
+                link.style.borderRadius = '5px';
+                link.style.border = '1px solid #ddd';
+                
+                link.addEventListener('mouseover', () => {
+                    link.style.background = '#e0e0e0';
+                });
+                
+                link.addEventListener('mouseout', () => {
+                    link.style.background = '#f0f0f0';
+                });
+                
+                downloadsDiv.appendChild(link);
+            });
+            
+            const instructions = document.createElement('p');
+            instructions.innerHTML = '<strong>Instructions:</strong><br>1. Right-click each link and "Save as..." to download<br>2. Save all icons to the public/icons/ directory<br>3. Your PWA will now have proper icons for installation!';
+            instructions.style.marginTop = '20px';
+            instructions.style.padding = '15px';
+            instructions.style.background = '#e8f4fd';
+            instructions.style.border = '1px solid #b3d9ff';
+            instructions.style.borderRadius = '5px';
+            downloadsDiv.appendChild(instructions);
+        }
+    </script>
+</body>
+</html>

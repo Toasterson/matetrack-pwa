@@ -1,0 +1,45 @@
+{
+  "name": "matetrack-pwa",
+  "version": "1.0.0",
+  "description": "A Progressive Web App for tracking expenses at events",
+  "main": "public/index.html",
+  "scripts": {
+    "start": "npx serve public -p 8080",
+    "dev": "npx serve public -p 8080 --live",
+    "build": "echo 'No build step required for this PWA'",
+    "docker:build": "docker build -t matetrack:latest .",
+    "docker:run": "docker run -d -p 8080:80 --name matetrack-local matetrack:latest",
+    "docker:stop": "docker stop matetrack-local && docker rm matetrack-local",
+    "docker:logs": "docker logs matetrack-local",
+    "k8s:deploy": "kubectl apply -f kubernetes.yaml",
+    "k8s:delete": "kubectl delete -f kubernetes.yaml",
+    "k8s:status": "kubectl get pods,services",
+    "icons": "echo 'Open create-simple-icons.html in your browser to generate PWA icons'",
+    "deploy": "./build-and-deploy.sh",
+    "test": "echo 'Open http://localhost:8080 in your browser to test the PWA'"
+  },
+  "keywords": [
+    "pwa",
+    "progressive-web-app",
+    "expense-tracker",
+    "mobile",
+    "offline",
+    "local-storage"
+  ],
+  "author": "MateTrack Team",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Toasterson/matetrack-pwa.git"
+  },
+  "homepage": "https://github.com/Toasterson/matetrack-pwa#readme",
+  "bugs": {
+    "url": "https://github.com/Toasterson/matetrack-pwa/issues"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

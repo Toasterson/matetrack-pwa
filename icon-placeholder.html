@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Generator</title>
+</head>
+<body>
+    <canvas id="canvas" style="display: none;"></canvas>
+    <script>
+        // Generate basic icons as data URIs
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        
+        function generateIcon(size) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = size;
+            canvas.height = size;
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Beer emoji style
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `${size * 0.4}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🍻', size / 2, size / 2.2);
+            
+            // App name
+            ctx.font = `bold ${size * 0.08}px Arial`;
+            ctx.fillText('MateTrack', size / 2, size * 0.85);
+            
+            return canvas.toDataURL('image/png');
+        }
+        
+        // Generate and log data URIs
+        sizes.forEach(size => {
+            const dataUri = generateIcon(size);
+            console.log(`${size}x${size}:`, dataUri);
+        });
+        
+        // Create download links
+        sizes.forEach(size => {
+            const dataUri = generateIcon(size);
+            const link = document.createElement('a');
+            link.href = dataUri;
+            link.download = `icon-${size}x${size}.png`;
+            link.textContent = `Download ${size}x${size}`;
+            link.style.display = 'block';
+            link.style.margin = '5px';
+            document.body.appendChild(link);
+        });
+    </script>
+</body>
+</html>

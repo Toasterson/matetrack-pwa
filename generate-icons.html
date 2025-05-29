@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Icon Generator</title>
+</head>
+<body>
+    <canvas id="canvas" style="display: none;"></canvas>
+    <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h1>PWA Icon Generator</h1>
+        <p>This will generate all required PWA icons. Open browser console to see progress.</p>
+        <button onclick="generateIcons()">Generate Icons</button>
+        <div id="downloads" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        function generateIcons() {
+            const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const downloadsDiv = document.getElementById('downloads');
+            
+            sizes.forEach(size => {
+                canvas.width = size;
+                canvas.height = size;
+                
+                // Create gradient background
+                const gradient = ctx.createLinearGradient(0, 0, size, size);
+                gradient.addColorStop(0, '#667eea');
+                gradient.addColorStop(1, '#764ba2');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, size, size);
+                
+                // Add rounded corners
+                ctx.globalCompositeOperation = 'destination-in';
+                ctx.beginPath();
+                const radius = size * 0.1;
+                ctx.roundRect(0, 0, size, size, radius);
+                ctx.fill();
+                ctx.globalCompositeOperation = 'source-over';
+                
+                // Add icon content (beer mug emoji style)
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `bold ${size * 0.5}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('🍻', size / 2, size / 2);
+                
+                // Add app name
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `bold ${size * 0.08}px Arial`;
+                ctx.fillText('MateTrack', size / 2, size * 0.85);
+                
+                // Convert to download link
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `icon-${size}x${size}.png`;
+                    link.textContent = `Download ${size}x${size} icon`;
+                    link.style.display = 'block';
+                    link.style.margin = '5px 0';
+                    downloadsDiv.appendChild(link);
+                });
+            });
+            
+            console.log('Icons generated! Check the download links above.');
+        }
+        
+        // Polyfill for roundRect if not available
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+                this.beginPath();
+                this.moveTo(x + radius, y);
+                this.lineTo(x + width - radius, y);
+                this.quadraticCurveTo(x + width, y, x + width, y + radius);
+                this.lineTo(x + width, y + height - radius);
+                this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                this.lineTo(x + radius, y + height);
+                this.quadraticCurveTo(x, y + height, x, y + height - radius);
+                this.lineTo(x, y + radius);
+                this.quadraticCurveTo(x, y, x + radius, y);
+                this.closePath();
+            };
+        }
+    </script>
+</body>
+</html>
