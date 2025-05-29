@@ -34,7 +34,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/matetrack-pwa
         tags: |
           type=ref,event=branch
           type=ref,event=pr
@@ -65,7 +65,7 @@ jobs:
         file: ./Dockerfile.chainguard
         platforms: linux/amd64,linux/arm64
         push: true
-        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:chainguard
+        tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/matetrack-pwa:chainguard
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
