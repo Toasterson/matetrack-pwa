@@ -4,48 +4,7 @@ FROM nginx:alpine
 COPY public/ /usr/share/nginx/html/
 
 # Copy nginx configuration
-COPY <<EOF /etc/nginx/conf.d/default.conf
-server {
-    listen 80;
-    server_name localhost;
-    root /usr/share/nginx/html;
-    index index.html;
-
-    # PWA Cache headers
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-
-    # Service Worker should not be cached
-    location /sw.js {
-        add_header Cache-Control "no-cache, no-store, must-revalidate";
-        add_header Pragma "no-cache";
-        add_header Expires "0";
-    }
-
-    # Manifest file headers
-    location /manifest.json {
-        add_header Content-Type "application/manifest+json";
-    }
-
-    # Security headers
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-
-    # SPA fallback - serve index.html for all routes
-    location / {
-        try_files \$uri \$uri/ /index.html;
-    }
-
-    # Gzip compression
-    gzip on;
-    gzip_vary on;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript application/manifest+json;
-}
-EOF
+COPY nginx-standard.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80 (standard nginx port)
 EXPOSE 80

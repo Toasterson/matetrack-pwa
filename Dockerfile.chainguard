@@ -3,47 +3,8 @@ FROM cgr.dev/chainguard/nginx:latest
 # Copy the PWA files to the nginx html directory
 COPY public/ /usr/share/nginx/html/
 
-# Create nginx configuration using RUN commands (Chainguard specific approach)
-RUN echo 'server {' > /etc/nginx/http.d/default.conf && \
-    echo '    listen 8080;' >> /etc/nginx/http.d/default.conf && \
-    echo '    server_name localhost;' >> /etc/nginx/http.d/default.conf && \
-    echo '    root /usr/share/nginx/html;' >> /etc/nginx/http.d/default.conf && \
-    echo '    index index.html;' >> /etc/nginx/http.d/default.conf && \
-    echo '' >> /etc/nginx/http.d/default.conf && \
-    echo '    # PWA Cache headers' >> /etc/nginx/http.d/default.conf && \
-    echo '    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {' >> /etc/nginx/http.d/default.conf && \
-    echo '        expires 1y;' >> /etc/nginx/http.d/default.conf && \
-    echo '        add_header Cache-Control "public, immutable";' >> /etc/nginx/http.d/default.conf && \
-    echo '    }' >> /etc/nginx/http.d/default.conf && \
-    echo '' >> /etc/nginx/http.d/default.conf && \
-    echo '    # Service Worker should not be cached' >> /etc/nginx/http.d/default.conf && \
-    echo '    location /sw.js {' >> /etc/nginx/http.d/default.conf && \
-    echo '        add_header Cache-Control "no-cache, no-store, must-revalidate";' >> /etc/nginx/http.d/default.conf && \
-    echo '        add_header Pragma "no-cache";' >> /etc/nginx/http.d/default.conf && \
-    echo '        add_header Expires "0";' >> /etc/nginx/http.d/default.conf && \
-    echo '    }' >> /etc/nginx/http.d/default.conf && \
-    echo '' >> /etc/nginx/http.d/default.conf && \
-    echo '    # Manifest file headers' >> /etc/nginx/http.d/default.conf && \
-    echo '    location /manifest.json {' >> /etc/nginx/http.d/default.conf && \
-    echo '        add_header Content-Type "application/manifest+json";' >> /etc/nginx/http.d/default.conf && \
-    echo '    }' >> /etc/nginx/http.d/default.conf && \
-    echo '' >> /etc/nginx/http.d/default.conf && \
-    echo '    # Security headers' >> /etc/nginx/http.d/default.conf && \
-    echo '    add_header X-Frame-Options "SAMEORIGIN" always;' >> /etc/nginx/http.d/default.conf && \
-    echo '    add_header X-Content-Type-Options "nosniff" always;' >> /etc/nginx/http.d/default.conf && \
-    echo '    add_header X-XSS-Protection "1; mode=block" always;' >> /etc/nginx/http.d/default.conf && \
-    echo '    add_header Referrer-Policy "strict-origin-when-cross-origin" always;' >> /etc/nginx/http.d/default.conf && \
-    echo '' >> /etc/nginx/http.d/default.conf && \
-    echo '    # SPA fallback - serve index.html for all routes' >> /etc/nginx/http.d/default.conf && \
-    echo '    location / {' >> /etc/nginx/http.d/default.conf && \
-    echo '        try_files $uri $uri/ /index.html;' >> /etc/nginx/http.d/default.conf && \
-    echo '    }' >> /etc/nginx/http.d/default.conf && \
-    echo '' >> /etc/nginx/http.d/default.conf && \
-    echo '    # Gzip compression' >> /etc/nginx/http.d/default.conf && \
-    echo '    gzip on;' >> /etc/nginx/http.d/default.conf && \
-    echo '    gzip_vary on;' >> /etc/nginx/http.d/default.conf && \
-    echo '    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript application/manifest+json;' >> /etc/nginx/http.d/default.conf && \
-    echo '}' >> /etc/nginx/http.d/default.conf
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/http.d/default.conf
 
 # Expose port 8080 (Chainguard nginx default)
 EXPOSE 8080

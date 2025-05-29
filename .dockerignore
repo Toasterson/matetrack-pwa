@@ -39,6 +39,10 @@ icon-placeholder.html
 generate-icons.html
 create-icons.js
 
+# Keep nginx config files (needed for container)
+!nginx.conf
+!nginx-standard.conf
+
 # Temporary files
 tmp/
 temp/
