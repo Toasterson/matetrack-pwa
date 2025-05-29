@@ -169,34 +169,24 @@ class MateTrackApp {
     }
 
     updateTotalAmount() {
-        // Calculate total out of pocket: register payments + other expenses
+        // Display total register payments
         const registerTotal = this.registerPayments.reduce((sum, payment) => sum + payment.amount, 0);
-        const otherExpenses = this.expenses.filter(expense => expense.category !== 'drinks')
-            .reduce((sum, expense) => sum + expense.amount, 0);
-        const totalOutOfPocket = registerTotal + otherExpenses;
-        document.getElementById('totalAmount').textContent = totalOutOfPocket.toFixed(2);
+        document.getElementById('totalAmount').textContent = registerTotal.toFixed(2);
     }
 
     calculateRegisterBalance() {
         const registerTotal = this.registerPayments.reduce((sum, payment) => sum + payment.amount, 0);
-        const drinksConsumed = this.expenses.filter(expense => expense.category === 'drinks')
-            .reduce((sum, expense) => sum + expense.amount, 0);
-        return registerTotal - drinksConsumed;
+        const totalExpenses = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        return registerTotal - totalExpenses;
     }
 
     updateRegisterSummary() {
         const registerTotal = this.registerPayments.reduce((sum, payment) => sum + payment.amount, 0);
-        const drinksConsumed = this.expenses.filter(expense => expense.category === 'drinks')
-            .reduce((sum, expense) => sum + expense.amount, 0);
-        const otherExpenses = this.expenses.filter(expense => expense.category !== 'drinks')
-            .reduce((sum, expense) => sum + expense.amount, 0);
+        const totalExpenses = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
         const balance = this.calculateRegisterBalance();
-        const totalOutOfPocket = registerTotal + otherExpenses;
         
         document.getElementById('totalRegisterAmount').textContent = registerTotal.toFixed(2);
-        document.getElementById('drinksConsumedAmount').textContent = drinksConsumed.toFixed(2);
-        document.getElementById('otherExpensesAmount').textContent = otherExpenses.toFixed(2);
-        document.getElementById('totalOutOfPocket').textContent = totalOutOfPocket.toFixed(2);
+        document.getElementById('drinksConsumedAmount').textContent = totalExpenses.toFixed(2);
         
         // Update balance display with appropriate styling
         const balanceElement = document.getElementById('balanceAmount');

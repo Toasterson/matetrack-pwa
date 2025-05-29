@@ -5,10 +5,10 @@ A Progressive Web App (PWA) designed for tracking expenses at events. Perfect fo
 ## Features
 
 - **💰 Expense Tracking**: Add and categorize your expenses with amounts and descriptions
-- **💳 Register Balance**: Track payments vs consumption to see what you owe/credit
+- **💳 Register Balance**: Track payments vs all expenses to see what you owe/credit
 - **🍺 Drink Inventory**: Manage a list of available drinks at your event with prices
 - **⚡ Quick Grab**: One-tap logging for items you grab from the fridge
-- **📊 Smart Balance**: See if you owe money or have credit with the register
+- **📊 Smart Balance**: See if you owe money or have credit for all your expenses
 - **📱 Mobile-First**: Responsive design optimized for iOS and Android
 - **🔄 Offline Capable**: Works without internet connection using local storage
 - **📲 Installable**: Can be installed on mobile devices like a native app
@@ -66,13 +66,13 @@ A Progressive Web App (PWA) designed for tracking expenses at events. Perfect fo
 1. Go to the **💰 Expenses** tab
 2. Enter amount, description, and category
 3. Tap "Add Expense"
-4. View your total at the top and history below
+4. View your register balance at the top and history below
 
 ### Register Payments
 1. Go to the **💳 Register** tab
 2. Enter amount you paid to the event organizer/register
-3. Add optional note (e.g., "For drinks fund", "Initial payment")
-4. View your balance: payments made vs drinks consumed
+3. Add optional note (e.g., "Initial payment", "Top up fund")
+4. View your balance: register payments vs all expenses
 5. **Green balance** = you have credit, **Red balance** = you owe money
 6. Perfect for tracking what you still need to pay or if you're overpaid
 

@@ -417,13 +417,7 @@ body {
     background: rgba(34, 197, 94, 0.05);
 }
 
-.summary-item.total-row {
-    border-top: 2px solid rgba(34, 197, 94, 0.3);
-    margin-top: 0.5rem;
-    padding-top: 1rem;
-    font-weight: 700;
-    font-size: 1.1rem;
-}
+
 
 .balance-positive {
     color: #059669 !important;
@@ -437,16 +431,7 @@ body {
     color: #6b7280 !important;
 }
 
-.total-row .summary-amount {
-    color: #2d3748;
-    font-size: 1.3rem;
-}
 
-<old_text>
-.total-row .summary-amount {
-    color: #2d3748;
-    font-size: 1.3rem;
-}
 
 .summary-label {
     color: #374151;

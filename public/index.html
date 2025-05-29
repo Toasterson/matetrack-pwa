@@ -20,10 +20,10 @@
             <h1>🍻 MateTrack</h1>
             <div class="header-summary">
                 <div class="total-spent">
-                    Out of Pocket: $<span id="totalAmount">0.00</span>
+                    Register Paid: $<span id="totalAmount">0.00</span>
                 </div>
                 <div class="credit-display">
-                    <span class="credit-label">Register:</span>
+                    <span class="credit-label">Balance:</span>
                     <span id="headerBalance" class="credit-amount">$0.00</span>
                 </div>
             </div>
@@ -83,7 +83,7 @@
                     </div>
                     <div class="form-group">
                         <label for="registerNote">Note (optional)</label>
-                        <input type="text" id="registerNote" placeholder="e.g., For drinks fund, Group dinner">
+                        <input type="text" id="registerNote" placeholder="e.g., Initial payment, Top up fund">
                     </div>
                     <button type="submit" class="btn btn-primary">Add Payment</button>
                 </form>
@@ -97,21 +97,15 @@
                         <span class="summary-amount">$<span id="totalRegisterAmount">0.00</span></span>
                     </div>
                     <div class="summary-item">
-                        <span class="summary-label">Drinks Consumed:</span>
+                        <span class="summary-label">Total Expenses:</span>
                         <span class="summary-amount">$<span id="drinksConsumedAmount">0.00</span></span>
                     </div>
                     <div class="summary-item balance-row">
                         <span class="summary-label">Balance:</span>
                         <span class="summary-amount" id="balanceAmount">$0.00</span>
                     </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Other Expenses:</span>
-                        <span class="summary-amount">$<span id="otherExpensesAmount">0.00</span></span>
-                    </div>
-                    <div class="summary-item total-row">
-                        <span class="summary-label">Total Out of Pocket:</span>
-                        <span class="summary-amount">$<span id="totalOutOfPocket">0.00</span></span>
-                    </div>
+
+
                 </div>
             </div>
 
