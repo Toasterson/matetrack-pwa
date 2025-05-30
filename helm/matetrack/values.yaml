@@ -96,17 +96,22 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 # Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
+volumes:
+- name: nginx-tmp
+  emptyDir: {}
+- name: nginx-cache
+  emptyDir: {}
+- name: nginx-pid
+  emptyDir: {}
 
 # Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
+volumeMounts:
+- name: nginx-tmp
+  mountPath: "/var/lib/nginx/tmp"
+- name: nginx-cache
+  mountPath: "/var/cache/nginx"
+- name: nginx-pid
+  mountPath: "/var/run"
 
 nodeSelector: {}
 
