@@ -1,4 +1,4 @@
-const CACHE_NAME = 'matetrack-v2';
+const CACHE_NAME = 'matetrack-v3';
 const urlsToCache = [
   '/',
   '/index.html',

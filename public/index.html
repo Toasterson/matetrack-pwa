@@ -31,32 +31,103 @@
 <body>
     <div class="app">
         <header class="header">
-            <h1>MateTrack</h1>
+            <div class="header-top">
+                <h1>MateTrack</h1>
+                <div class="header-menu">
+                    <button id="menuToggle" class="menu-toggle" aria-label="Menu">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <div id="menuDropdown" class="menu-dropdown">
+                        <button id="clearDataBtn" class="menu-item menu-item-danger">Purge All Data</button>
+                    </div>
+                </div>
+            </div>
             <div class="header-summary">
                 <div class="total-spent">
-                    Register Paid: $<span id="totalAmount">0.00</span>
+                    Paid in: CHF <span id="totalAmount">0.00</span>
                 </div>
                 <div class="credit-display">
-                    <span class="credit-label">Balance:</span>
-                    <span id="headerBalance" class="credit-amount">$0.00</span>
+                    <span id="headerBalanceLabel" class="credit-label">Balance:</span>
+                    <span id="headerBalance" class="credit-amount">CHF 0.00</span>
                 </div>
             </div>
         </header>
 
         <nav class="nav-tabs">
-            <button class="nav-tab active" data-tab="expenses">Expenses</button>
+            <button class="nav-tab active" data-tab="quick">Quick Grab</button>
             <button class="nav-tab" data-tab="register">Ledger</button>
+            <button class="nav-tab" data-tab="expenses">Expenses</button>
             <button class="nav-tab" data-tab="drinks">Inventory</button>
-            <button class="nav-tab" data-tab="quick">Quick Grab</button>
         </nav>
 
+        <!-- Quick Grab Tab (default) -->
+        <div id="quick" class="tab-content active">
+            <div class="card">
+                <h2>Quick Grab</h2>
+                <p class="subtitle">Tap what you just grabbed:</p>
+                <div id="quickGrabButtons" class="quick-buttons">
+                    <p class="empty-state">Set up drinks in the Inventory tab first!</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Today's Grabs</h2>
+                <div id="quickGrabsList" class="grabs-list">
+                    <p class="empty-state">No grabs today. Tap a button above when you grab something!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ledger Tab -->
+        <div id="register" class="tab-content">
+            <div class="card">
+                <h2>Pay In</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerAmount">Amount (CHF)</label>
+                        <input type="number" id="registerAmount" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerNote">Note (optional)</label>
+                        <input type="text" id="registerNote" placeholder="e.g., 20er note, top up">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Log Payment</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Ledger Balance</h2>
+                <div class="register-summary">
+                    <div class="summary-item">
+                        <span class="summary-label">Paid in:</span>
+                        <span class="summary-amount">CHF <span id="totalRegisterAmount">0.00</span></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Consumed:</span>
+                        <span class="summary-amount">CHF <span id="drinksConsumedAmount">0.00</span></span>
+                    </div>
+                    <div class="summary-item balance-row">
+                        <span class="summary-label">Balance:</span>
+                        <span class="summary-amount" id="balanceAmount">CHF 0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Payment History</h2>
+                <div id="registerPaymentsList" class="register-list">
+                    <p class="empty-state">No payments yet. Log when you hand cash to the organizer!</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Expenses Tab -->
-        <div id="expenses" class="tab-content active">
+        <div id="expenses" class="tab-content">
             <div class="card">
                 <h2>Log Expense</h2>
                 <form id="expenseForm">
                     <div class="form-group">
-                        <label for="expenseAmount">Amount ($)</label>
+                        <label for="expenseAmount">Amount (CHF)</label>
                         <input type="number" id="expenseAmount" step="0.01" min="0" required>
                     </div>
                     <div class="form-group">
@@ -79,107 +150,36 @@
             </div>
 
             <div class="card">
-                <h2>Recent Expenses</h2>
+                <h2>Expense History</h2>
                 <div id="expensesList" class="expenses-list">
-                    <p class="empty-state">No expenses yet. Add your first expense above!</p>
+                    <p class="empty-state">No expenses yet. Grab a drink or add one manually!</p>
                 </div>
             </div>
         </div>
 
-        <!-- Register / Ledger Injector Tab -->
-        <div id="register" class="tab-content">
-            <div class="card">
-                <h2>Inject Funds</h2>
-                <form id="registerForm">
-                    <div class="form-group">
-                        <label for="registerAmount">Amount ($)</label>
-                        <input type="number" id="registerAmount" step="0.01" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="registerNote">Note (optional)</label>
-                        <input type="text" id="registerNote" placeholder="e.g., Initial payment, Top up fund">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Inject Payment</button>
-                </form>
-            </div>
-
-            <div class="card">
-                <h2>Ledger Balance</h2>
-                <div class="register-summary">
-                    <div class="summary-item">
-                        <span class="summary-label">Funds Injected:</span>
-                        <span class="summary-amount">$<span id="totalRegisterAmount">0.00</span></span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Total Expenses:</span>
-                        <span class="summary-amount">$<span id="drinksConsumedAmount">0.00</span></span>
-                    </div>
-                    <div class="summary-item balance-row">
-                        <span class="summary-label">Balance:</span>
-                        <span class="summary-amount" id="balanceAmount">$0.00</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>Transaction Ledger</h2>
-                <div id="registerPaymentsList" class="register-list">
-                    <p class="empty-state">No transactions yet. Inject your first payment above!</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Drinks / Inventory Terminal Tab -->
+        <!-- Inventory Tab -->
         <div id="drinks" class="tab-content">
             <div class="card">
-                <h2>Add to Inventory</h2>
+                <h2>Add Drink</h2>
                 <form id="drinkForm">
                     <div class="form-group">
                         <label for="drinkName">Drink Name</label>
                         <input type="text" id="drinkName" placeholder="e.g., Club-Mate, Water, Energy" required>
                     </div>
                     <div class="form-group">
-                        <label for="drinkPrice">Price per Unit ($)</label>
+                        <label for="drinkPrice">Price (CHF)</label>
                         <input type="number" id="drinkPrice" step="0.01" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="drinkQuantity">Quantity</label>
-                        <input type="number" id="drinkQuantity" min="1" value="1" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Add to Inventory</button>
                 </form>
             </div>
 
             <div class="card">
-                <h2>Drink Inventory</h2>
+                <h2>Available Drinks</h2>
                 <div id="drinksList" class="drinks-list">
-                    <p class="empty-state">No drinks added yet. Stock the inventory above!</p>
+                    <p class="empty-state">No drinks set up yet. Add available drinks above!</p>
                 </div>
             </div>
-        </div>
-
-        <!-- Quick Grab Tab -->
-        <div id="quick" class="tab-content">
-            <div class="card">
-                <h2>Quick Grab</h2>
-                <p class="subtitle">Tap what you just grabbed:</p>
-                <div id="quickGrabButtons" class="quick-buttons">
-                    <p class="empty-state">Add drinks to the inventory first to enable quick grab!</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>Today's Grabs</h2>
-                <div id="quickGrabsList" class="grabs-list">
-                    <p class="empty-state">No grabs today. Use the buttons above when you grab something!</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- System Wipe -->
-        <div class="card danger-zone">
-            <h3>System Wipe</h3>
-            <button id="clearDataBtn" class="btn btn-danger">Purge All Data</button>
         </div>
     </div>
 

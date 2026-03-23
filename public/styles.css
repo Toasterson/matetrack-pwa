@@ -126,7 +126,7 @@ body::after {
     padding: 1.25rem 1.5rem;
     margin-bottom: 0.75rem;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 /* Subtle top-edge glow */
@@ -141,14 +141,108 @@ body::after {
     opacity: 0.5;
 }
 
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
 .header h1 {
     font-family: var(--font-mono);
     font-size: 1.4rem;
     font-weight: 700;
     color: var(--glow-teal);
     letter-spacing: -0.02em;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0;
     text-shadow: 0 0 20px rgba(0, 212, 170, 0.2);
+}
+
+/* --- Hamburger Menu --- */
+.header-menu {
+    position: relative;
+}
+
+.menu-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color 0.2s var(--ease-out);
+}
+
+.menu-toggle span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--text-secondary);
+    border-radius: 1px;
+    transition: background 0.2s var(--ease-out);
+}
+
+.menu-toggle:hover {
+    border-color: var(--border-active);
+}
+
+.menu-toggle:hover span {
+    background: var(--glow-teal);
+}
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 180px;
+    background: var(--bg-trench);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    overflow: hidden;
+}
+
+.menu-dropdown.open {
+    display: block;
+    animation: fadeIn 0.15s var(--ease-out);
+}
+
+.menu-item {
+    display: block;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    background: transparent;
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s var(--ease-out);
+    color: var(--text-secondary);
+}
+
+.menu-item:hover {
+    background: rgba(0, 212, 170, 0.06);
+    color: var(--text-primary);
+}
+
+.menu-item-danger {
+    color: var(--glow-purple);
+}
+
+.menu-item-danger:hover {
+    background: rgba(168, 85, 247, 0.1);
+    color: var(--glow-lavender);
 }
 
 .header-summary {
@@ -297,16 +391,6 @@ body::after {
     border-bottom: 1px solid var(--border-subtle);
 }
 
-.card h3 {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--glow-purple);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 0.75rem;
-}
-
 .subtitle {
     color: var(--text-secondary);
     font-size: 0.85rem;
@@ -396,24 +480,6 @@ body::after {
 
 .btn-primary:active {
     background: rgba(0, 212, 170, 0.25);
-}
-
-.btn-danger {
-    background: rgba(168, 85, 247, 0.08);
-    color: var(--glow-purple);
-    border-color: rgba(168, 85, 247, 0.2);
-    box-shadow: 0 0 12px rgba(168, 85, 247, 0.06);
-}
-
-.btn-danger:hover {
-    background: rgba(168, 85, 247, 0.15);
-    border-color: rgba(168, 85, 247, 0.4);
-    box-shadow: 0 0 20px var(--danger-glow);
-    transform: none;
-}
-
-.btn-danger:active {
-    background: rgba(168, 85, 247, 0.22);
 }
 
 /* Quick Grab buttons — clean grid */
@@ -561,17 +627,99 @@ body::after {
     border-radius: var(--radius-md);
 }
 
-/* --- Danger Zone --- */
-.danger-zone {
-    border-color: rgba(168, 85, 247, 0.12);
-    background: rgba(168, 85, 247, 0.03);
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.04);
+/* --- Delete Buttons --- */
+.item-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.danger-zone h3 {
-    color: var(--glow-purple);
-    border-bottom: 1px solid rgba(168, 85, 247, 0.1);
-    padding-bottom: 0.5rem;
+.btn-delete {
+    margin-left: auto;
+    padding: 0.15rem 0.4rem;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.15s var(--ease-out);
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.btn-delete:hover {
+    color: var(--negative);
+    border-color: rgba(248, 113, 113, 0.25);
+    background: var(--negative-dim);
+}
+
+/* --- Install Banner --- */
+.install-banner {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    max-width: 548px;
+    margin: 0 auto;
+    background: var(--bg-trench);
+    border: 1px solid var(--border-active);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    text-align: center;
+    z-index: 1000;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 212, 170, 0.08);
+    animation: slideIn 0.3s var(--ease-out);
+}
+
+.install-banner p {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.install-banner-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.btn-install {
+    padding: 0.45rem 1rem;
+    background: rgba(0, 212, 170, 0.12);
+    color: var(--glow-teal);
+    border: 1px solid var(--border-active);
+    border-radius: var(--radius-md);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s var(--ease-out);
+}
+
+.btn-install:hover {
+    background: rgba(0, 212, 170, 0.2);
+    border-color: var(--glow-teal);
+}
+
+.btn-dismiss {
+    padding: 0.45rem 1rem;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s var(--ease-out);
+}
+
+.btn-dismiss:hover {
+    color: var(--text-primary);
+    border-color: var(--text-muted);
 }
 
 /* --- Register Summary --- */

@@ -1,11 +1,11 @@
-// MateTrack PWA - Expense Tracker App
+// MateTrack PWA - Personal Drink Tab Tracker
 class MateTrackApp {
     constructor() {
         this.expenses = JSON.parse(localStorage.getItem('matetrack_expenses') || '[]');
         this.drinks = JSON.parse(localStorage.getItem('matetrack_drinks') || '[]');
         this.quickGrabs = JSON.parse(localStorage.getItem('matetrack_grabs') || '[]');
         this.registerPayments = JSON.parse(localStorage.getItem('matetrack_register') || '[]');
-        
+
         this.init();
     }
 
@@ -19,6 +19,20 @@ class MateTrackApp {
         this.renderRegisterPayments();
     }
 
+    // --- Utilities ---
+
+    escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    }
+
+    // --- Event Listeners ---
+
     setupEventListeners() {
         // Tab navigation
         document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -29,35 +43,51 @@ class MateTrackApp {
         document.getElementById('expenseForm').addEventListener('submit', (e) => this.addExpense(e));
         document.getElementById('drinkForm').addEventListener('submit', (e) => this.addDrink(e));
         document.getElementById('registerForm').addEventListener('submit', (e) => this.addRegisterPayment(e));
-        
+
+        // Hamburger menu
+        const menuToggle = document.getElementById('menuToggle');
+        const menuDropdown = document.getElementById('menuDropdown');
+        if (menuToggle && menuDropdown) {
+            menuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menuDropdown.classList.toggle('open');
+            });
+            document.addEventListener('click', () => {
+                menuDropdown.classList.remove('open');
+            });
+            menuDropdown.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+
         // Clear data button
         document.getElementById('clearDataBtn').addEventListener('click', () => this.clearAllData());
     }
 
     switchTab(tabName) {
-        // Remove active class from all tabs and content
         document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        
-        // Add active class to selected tab and content
+
         document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
         document.getElementById(tabName).classList.add('active');
     }
 
+    // --- Add Actions ---
+
     addExpense(e) {
         e.preventDefault();
-        
+
         const amount = parseFloat(document.getElementById('expenseAmount').value);
         const description = document.getElementById('expenseDescription').value.trim();
         const category = document.getElementById('expenseCategory').value;
-        
+
         if (!amount || !description || !category) {
             this.showFeedback('Please fill in all fields', 'error');
             return;
         }
 
         const expense = {
-            id: Date.now(),
+            id: this.generateId(),
             amount: amount,
             description: description,
             category: category,
@@ -71,27 +101,24 @@ class MateTrackApp {
         this.updateAllDisplays();
         this.renderExpenses();
         this.resetForm('expenseForm');
-        this.showFeedback(`Added expense: $${amount.toFixed(2)}`, 'success');
+        this.showFeedback(`Added expense: CHF ${amount.toFixed(2)}`, 'success');
     }
 
     addDrink(e) {
         e.preventDefault();
-        
+
         const name = document.getElementById('drinkName').value.trim();
         const price = parseFloat(document.getElementById('drinkPrice').value);
-        const quantity = parseInt(document.getElementById('drinkQuantity').value);
-        
-        if (!name || !price || !quantity) {
+
+        if (!name || !price) {
             this.showFeedback('Please fill in all fields', 'error');
             return;
         }
 
         const drink = {
-            id: Date.now(),
+            id: this.generateId(),
             name: name,
             price: price,
-            quantity: quantity,
-            totalValue: price * quantity,
             timestamp: new Date().toISOString()
         };
 
@@ -100,7 +127,7 @@ class MateTrackApp {
         this.renderDrinks();
         this.renderQuickGrabButtons();
         this.resetForm('drinkForm');
-        this.showFeedback(`Added ${quantity}x ${name} to inventory`, 'success');
+        this.showFeedback(`Added ${name} (CHF ${price.toFixed(2)})`, 'success');
     }
 
     addQuickGrab(drinkId) {
@@ -108,7 +135,7 @@ class MateTrackApp {
         if (!drink) return;
 
         const grab = {
-            id: Date.now(),
+            id: this.generateId(),
             drinkId: drinkId,
             drinkName: drink.name,
             price: drink.price,
@@ -117,9 +144,8 @@ class MateTrackApp {
             time: new Date().toLocaleTimeString()
         };
 
-        // Also add as expense
         const expense = {
-            id: Date.now() + 1,
+            id: this.generateId(),
             amount: drink.price,
             description: `Quick grab: ${drink.name}`,
             category: 'drinks',
@@ -130,31 +156,31 @@ class MateTrackApp {
 
         this.quickGrabs.unshift(grab);
         this.expenses.unshift(expense);
-        
+
         this.saveQuickGrabs();
         this.saveExpenses();
         this.updateAllDisplays();
         this.renderExpenses();
         this.renderQuickGrabs();
-        
-        this.showFeedback(`Grabbed ${drink.name} - $${drink.price.toFixed(2)}`, 'success');
+
+        this.showFeedback(`Grabbed ${drink.name} — CHF ${drink.price.toFixed(2)}`, 'success');
     }
 
     addRegisterPayment(e) {
         e.preventDefault();
-        
+
         const amount = parseFloat(document.getElementById('registerAmount').value);
         const note = document.getElementById('registerNote').value.trim();
-        
+
         if (!amount) {
             this.showFeedback('Please enter an amount', 'error');
             return;
         }
 
         const payment = {
-            id: Date.now(),
+            id: this.generateId(),
             amount: amount,
-            note: note || 'Payment to event register',
+            note: note || 'Payment to register',
             timestamp: new Date().toISOString(),
             date: new Date().toLocaleDateString(),
             time: new Date().toLocaleTimeString()
@@ -165,63 +191,117 @@ class MateTrackApp {
         this.updateAllDisplays();
         this.renderRegisterPayments();
         this.resetForm('registerForm');
-        this.showFeedback(`Added register payment: $${amount.toFixed(2)}`, 'success');
+        this.showFeedback(`Paid in: CHF ${amount.toFixed(2)}`, 'success');
     }
 
+    // --- Delete Actions ---
+
+    deleteExpense(id) {
+        this.expenses = this.expenses.filter(e => e.id !== id);
+        this.saveExpenses();
+        this.updateAllDisplays();
+        this.renderExpenses();
+    }
+
+    deleteDrink(id) {
+        this.drinks = this.drinks.filter(d => d.id !== id);
+        this.saveDrinks();
+        this.renderDrinks();
+        this.renderQuickGrabButtons();
+    }
+
+    deleteGrab(id) {
+        this.quickGrabs = this.quickGrabs.filter(g => g.id !== id);
+        this.saveQuickGrabs();
+        this.renderQuickGrabs();
+    }
+
+    deleteRegisterPayment(id) {
+        this.registerPayments = this.registerPayments.filter(p => p.id !== id);
+        this.saveRegisterPayments();
+        this.updateAllDisplays();
+        this.renderRegisterPayments();
+    }
+
+    // --- Display Updates ---
+
     updateTotalAmount() {
-        // Display total register payments
-        const registerTotal = this.registerPayments.reduce((sum, payment) => sum + payment.amount, 0);
+        const registerTotal = this.registerPayments.reduce((sum, p) => sum + p.amount, 0);
         document.getElementById('totalAmount').textContent = registerTotal.toFixed(2);
     }
 
     calculateRegisterBalance() {
-        const registerTotal = this.registerPayments.reduce((sum, payment) => sum + payment.amount, 0);
-        const totalExpenses = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        const registerTotal = this.registerPayments.reduce((sum, p) => sum + p.amount, 0);
+        const totalExpenses = this.expenses.reduce((sum, e) => sum + e.amount, 0);
         return registerTotal - totalExpenses;
     }
 
     updateRegisterSummary() {
-        const registerTotal = this.registerPayments.reduce((sum, payment) => sum + payment.amount, 0);
-        const totalExpenses = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        const registerTotal = this.registerPayments.reduce((sum, p) => sum + p.amount, 0);
+        const totalExpenses = this.expenses.reduce((sum, e) => sum + e.amount, 0);
         const balance = this.calculateRegisterBalance();
-        
+
         document.getElementById('totalRegisterAmount').textContent = registerTotal.toFixed(2);
         document.getElementById('drinksConsumedAmount').textContent = totalExpenses.toFixed(2);
-        
-        // Update balance display with appropriate styling
+
         const balanceElement = document.getElementById('balanceAmount');
         if (balance > 0) {
-            balanceElement.textContent = `+$${balance.toFixed(2)}`;
+            balanceElement.textContent = `+${balance.toFixed(2)}`;
             balanceElement.className = 'summary-amount balance-positive';
         } else if (balance < 0) {
-            balanceElement.textContent = `-$${Math.abs(balance).toFixed(2)}`;
+            balanceElement.textContent = `-${Math.abs(balance).toFixed(2)}`;
             balanceElement.className = 'summary-amount balance-negative';
         } else {
-            balanceElement.textContent = '$0.00';
+            balanceElement.textContent = '0.00';
             balanceElement.className = 'summary-amount balance-zero';
         }
-        
-        // Update header balance display
+
         this.updateHeaderBalance(balance);
     }
 
+    updateHeaderBalance(balance) {
+        const el = document.getElementById('headerBalance');
+
+        if (balance > 0) {
+            el.textContent = `CHF ${balance.toFixed(2)}`;
+            el.className = 'credit-amount credit-positive';
+            document.getElementById('headerBalanceLabel').textContent = 'Credit:';
+        } else if (balance < 0) {
+            el.textContent = `CHF ${Math.abs(balance).toFixed(2)}`;
+            el.className = 'credit-amount credit-negative';
+            document.getElementById('headerBalanceLabel').textContent = 'You owe:';
+        } else {
+            el.textContent = 'CHF 0.00';
+            el.className = 'credit-amount credit-zero';
+            document.getElementById('headerBalanceLabel').textContent = 'Balance:';
+        }
+    }
+
+    updateAllDisplays() {
+        this.updateTotalAmount();
+        this.updateRegisterSummary();
+    }
+
+    // --- Renderers ---
+
     renderExpenses() {
         const container = document.getElementById('expensesList');
-        
+
         if (this.expenses.length === 0) {
-            container.innerHTML = '<p class="empty-state">No expenses yet. Add your first expense above!</p>';
+            container.innerHTML = '<p class="empty-state">No expenses yet. Grab a drink or add one manually!</p>';
             return;
         }
 
         container.innerHTML = this.expenses.map(expense => `
             <div class="expense-item">
                 <div class="expense-header">
-                    <span class="expense-description">${expense.description}</span>
-                    <span class="expense-amount">$${expense.amount.toFixed(2)}</span>
+                    <span class="expense-description">${this.escapeHtml(expense.description)}</span>
+                    <span class="expense-amount">CHF ${expense.amount.toFixed(2)}</span>
                 </div>
-                <div>
-                    <span class="expense-category">${expense.category}</span>
-                    <span class="expense-time">${expense.date} at ${expense.time}</span>
+                <div class="item-meta">
+                    <span class="expense-category">${this.escapeHtml(expense.category)}</span>
+                    <span class="expense-time">${this.escapeHtml(expense.date)} ${this.escapeHtml(expense.time)}</span>
+                    <button class="btn-delete" onclick="app.deleteExpense('${expense.id}')" title="Delete">&#x2715;</button>
                 </div>
             </div>
         `).join('');
@@ -229,21 +309,20 @@ class MateTrackApp {
 
     renderDrinks() {
         const container = document.getElementById('drinksList');
-        
+
         if (this.drinks.length === 0) {
-            container.innerHTML = '<p class="empty-state">No drinks added yet. Add drinks to the event above!</p>';
+            container.innerHTML = '<p class="empty-state">No drinks set up yet. Add available drinks above!</p>';
             return;
         }
 
         container.innerHTML = this.drinks.map(drink => `
             <div class="drink-item">
                 <div class="drink-header">
-                    <span class="drink-name">${drink.name}</span>
-                    <span class="drink-price">$${drink.price.toFixed(2)} each</span>
+                    <span class="drink-name">${this.escapeHtml(drink.name)}</span>
+                    <span class="drink-price">CHF ${drink.price.toFixed(2)}</span>
                 </div>
-                <div>
-                    <span class="drink-quantity">${drink.quantity} units</span>
-                    <span class="drink-quantity">Total: $${drink.totalValue.toFixed(2)}</span>
+                <div class="item-meta">
+                    <button class="btn-delete" onclick="app.deleteDrink('${drink.id}')" title="Delete">&#x2715;</button>
                 </div>
             </div>
         `).join('');
@@ -251,16 +330,16 @@ class MateTrackApp {
 
     renderQuickGrabButtons() {
         const container = document.getElementById('quickGrabButtons');
-        
+
         if (this.drinks.length === 0) {
-            container.innerHTML = '<p class="empty-state">Add drinks to the inventory first to enable quick grab!</p>';
+            container.innerHTML = '<p class="empty-state">Set up drinks in the Inventory tab first!</p>';
             return;
         }
 
         container.innerHTML = this.drinks.map(drink => `
-            <button class="btn btn-quick" onclick="app.addQuickGrab(${drink.id})">
-                ${drink.name}<br>
-                <small>$${drink.price.toFixed(2)}</small>
+            <button class="btn btn-quick" onclick="app.addQuickGrab('${drink.id}')">
+                ${this.escapeHtml(drink.name)}<br>
+                <small>CHF ${drink.price.toFixed(2)}</small>
             </button>
         `).join('');
     }
@@ -269,20 +348,21 @@ class MateTrackApp {
         const container = document.getElementById('quickGrabsList');
         const today = new Date().toLocaleDateString();
         const todayGrabs = this.quickGrabs.filter(grab => grab.date === today);
-        
+
         if (todayGrabs.length === 0) {
-            container.innerHTML = '<p class="empty-state">No grabs today. Use the buttons above when you grab something!</p>';
+            container.innerHTML = '<p class="empty-state">No grabs today. Tap a button above when you grab something!</p>';
             return;
         }
 
         container.innerHTML = todayGrabs.map(grab => `
             <div class="grab-item">
                 <div class="grab-header">
-                    <span class="drink-name">${grab.drinkName}</span>
-                    <span class="grab-price">$${grab.price.toFixed(2)}</span>
+                    <span class="drink-name">${this.escapeHtml(grab.drinkName)}</span>
+                    <span class="grab-price">CHF ${grab.price.toFixed(2)}</span>
                 </div>
-                <div>
-                    <span class="grab-time">${grab.time}</span>
+                <div class="item-meta">
+                    <span class="grab-time">${this.escapeHtml(grab.time)}</span>
+                    <button class="btn-delete" onclick="app.deleteGrab('${grab.id}')" title="Delete">&#x2715;</button>
                 </div>
             </div>
         `).join('');
@@ -290,24 +370,27 @@ class MateTrackApp {
 
     renderRegisterPayments() {
         const container = document.getElementById('registerPaymentsList');
-        
+
         if (this.registerPayments.length === 0) {
-            container.innerHTML = '<p class="empty-state">No register payments yet. Add your first payment above!</p>';
+            container.innerHTML = '<p class="empty-state">No payments yet. Log when you hand cash to the organizer!</p>';
             return;
         }
 
         container.innerHTML = this.registerPayments.map(payment => `
             <div class="register-item">
                 <div class="register-header">
-                    <span class="register-note">${payment.note}</span>
-                    <span class="register-amount">$${payment.amount.toFixed(2)}</span>
+                    <span class="register-note">${this.escapeHtml(payment.note)}</span>
+                    <span class="register-amount">CHF ${payment.amount.toFixed(2)}</span>
                 </div>
-                <div>
-                    <span class="register-time">${payment.date} at ${payment.time}</span>
+                <div class="item-meta">
+                    <span class="register-time">${this.escapeHtml(payment.date)} ${this.escapeHtml(payment.time)}</span>
+                    <button class="btn-delete" onclick="app.deleteRegisterPayment('${payment.id}')" title="Delete">&#x2715;</button>
                 </div>
             </div>
         `).join('');
     }
+
+    // --- Feedback ---
 
     showFeedback(message, type) {
         const existingFeedback = document.querySelector('.success-feedback, .error-feedback');
@@ -318,14 +401,20 @@ class MateTrackApp {
         const feedback = document.createElement('div');
         feedback.className = type === 'success' ? 'success-feedback' : 'error-feedback';
         feedback.textContent = message;
-        
-        const firstCard = document.querySelector('.card');
-        firstCard.parentNode.insertBefore(feedback, firstCard);
-        
+
+        // Insert into the currently active tab, or before the header if no active tab card
+        const activeTab = document.querySelector('.tab-content.active');
+        const targetCard = activeTab ? activeTab.querySelector('.card') : document.querySelector('.card');
+        if (targetCard) {
+            targetCard.parentNode.insertBefore(feedback, targetCard);
+        }
+
         setTimeout(() => {
             feedback.remove();
         }, 3000);
     }
+
+    // --- Form / Data ---
 
     resetForm(formId) {
         document.getElementById(formId).reset();
@@ -337,20 +426,24 @@ class MateTrackApp {
             this.drinks = [];
             this.quickGrabs = [];
             this.registerPayments = [];
-            
+
             localStorage.removeItem('matetrack_expenses');
             localStorage.removeItem('matetrack_drinks');
             localStorage.removeItem('matetrack_grabs');
             localStorage.removeItem('matetrack_register');
-            
+
             this.updateAllDisplays();
             this.renderExpenses();
             this.renderDrinks();
             this.renderQuickGrabButtons();
             this.renderQuickGrabs();
             this.renderRegisterPayments();
-            
-            this.showFeedback('All data cleared successfully', 'success');
+
+            // Close the menu
+            const menu = document.getElementById('menuDropdown');
+            if (menu) menu.classList.remove('open');
+
+            this.showFeedback('All data cleared', 'success');
         }
     }
 
@@ -369,26 +462,6 @@ class MateTrackApp {
     saveRegisterPayments() {
         localStorage.setItem('matetrack_register', JSON.stringify(this.registerPayments));
     }
-
-    updateHeaderBalance(balance) {
-        const headerBalanceElement = document.getElementById('headerBalance');
-        
-        if (balance > 0) {
-            headerBalanceElement.textContent = `+$${balance.toFixed(2)}`;
-            headerBalanceElement.className = 'credit-amount credit-positive';
-        } else if (balance < 0) {
-            headerBalanceElement.textContent = `-$${Math.abs(balance).toFixed(2)}`;
-            headerBalanceElement.className = 'credit-amount credit-negative';
-        } else {
-            headerBalanceElement.textContent = '$0.00';
-            headerBalanceElement.className = 'credit-amount credit-zero';
-        }
-    }
-
-    updateAllDisplays() {
-        this.updateTotalAmount();
-        this.updateRegisterSummary();
-    }
 }
 
 // Initialize the app when DOM is loaded
@@ -401,14 +474,14 @@ let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    
-    // Show install button or banner
+
     const installBanner = document.createElement('div');
+    installBanner.className = 'install-banner';
     installBanner.innerHTML = `
-        <div style="position: fixed; bottom: 20px; left: 20px; right: 20px; background: linear-gradient(45deg, #4299e1, #667eea); color: white; padding: 1rem; border-radius: 12px; text-align: center; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-            <p style="margin-bottom: 0.5rem; font-weight: 600;">Install MateTrack for the best experience!</p>
-            <button onclick="installApp()" style="background: white; color: #4299e1; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Install App</button>
-            <button onclick="this.parentElement.remove()" style="background: transparent; color: white; border: 1px solid white; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; margin-left: 0.5rem;">Maybe Later</button>
+        <p>Install MateTrack for the best experience!</p>
+        <div class="install-banner-actions">
+            <button class="btn-install" onclick="installApp()">Install</button>
+            <button class="btn-dismiss" onclick="this.closest('.install-banner').remove()">Later</button>
         </div>
     `;
     document.body.appendChild(installBanner);
@@ -419,11 +492,11 @@ window.installApp = async () => {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         deferredPrompt = null;
-        document.querySelector('[onclick="installApp()"]').parentElement.remove();
+        const banner = document.querySelector('.install-banner');
+        if (banner) banner.remove();
     }
 };
 
-// Handle app installed
-window.addEventListener('appinstalled', (evt) => {
+window.addEventListener('appinstalled', () => {
     console.log('MateTrack PWA was installed');
 });
